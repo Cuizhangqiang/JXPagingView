@@ -79,6 +79,7 @@ open class JXPagingView: UIView {
             listContainerView.defaultSelectedIndex = defaultSelectedIndex
         }
     }
+    public var listContainerViewMargin: CGFloat = 0
     public private(set) lazy var mainTableView: JXPagingMainTableView = JXPagingMainTableView(frame: CGRect.zero, style: .plain)
     public private(set) lazy var listContainerView: JXPagingListContainerView = JXPagingListContainerView(dataSource: self, type: listContainerType)
     /// 当前已经加载过可用的列表字典，key就是index值，value是对应的列表。
@@ -314,7 +315,7 @@ extension JXPagingView: UITableViewDataSource, UITableViewDelegate {
             cell.contentView.addSubview(listContainerView)
         }
         if listContainerView.frame != cell.bounds {
-            listContainerView.frame = cell.bounds
+            listContainerView.frame = CGRect(x: listContainerViewMargin, y: 0, width: cell.bounds.width - listContainerViewMargin * 2, height: cell.bounds.height)
         }
         return cell
     }
