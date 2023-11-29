@@ -73,6 +73,7 @@ public extension JXPagingViewDelegate {
 }
 
 open class JXPagingView: UIView {
+    private var outerScrollScrollToTop: (() -> Void)?
     /// 需要和categoryView.defaultSelectedIndex保持一致
     public var defaultSelectedIndex: Int = 0 {
         didSet {
@@ -292,8 +293,30 @@ open class JXPagingView: UIView {
 
     /// 外部传入的listView，当其内部的scrollView滚动时，需要调用该方法
     func listViewDidScroll(scrollView: UIScrollView) {
+        if scrollView.contentOffset.y <= minContentOffsetYInListScrollView(scrollView) {
+            outerScrollScrollToTop?()
+            outerScrollScrollToTop = nil
+        }
         currentScrollingListView = scrollView
         preferredProcessListViewDidScroll(scrollView: scrollView)
+    }
+
+    /// 滚动到顶部
+    open func scrollToTop() {
+        guard let curScroll = currentScrollingListView else {
+        return
+        }
+
+        if curScroll.contentOffset.y <= minContentOffsetYInListScrollView(curScroll) {
+            self.mainTableView.setContentOffset(.zero, animated: true)
+        } else {
+            isUserInteractionEnabled = false
+            outerScrollScrollToTop = { [weak self] in
+                self?.isUserInteractionEnabled = true
+                self?.mainTableView.setContentOffset(.zero, animated: true)
+            }
+            self.currentScrollingListView?.setContentOffset(.zero, animated: true)
+        }
     }
 }
 
